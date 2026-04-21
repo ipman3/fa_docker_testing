@@ -1,8 +1,9 @@
-FROM php:8.2-apache
+FROM php:8.2-fpm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
+        nginx \
         libcurl4-openssl-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
@@ -26,20 +27,30 @@ RUN apt-get update \
         xmlwriter \
         zip \
     && docker-php-ext-enable igbinary redis \
-    && a2enmod rewrite \
     && { \
-        echo '<VirtualHost *:80>'; \
-        echo '    ServerAdmin webmaster@localhost'; \
-        echo '    DocumentRoot /var/www/html/public'; \
-        echo '    <Directory /var/www/html/public>'; \
-        echo '        AllowOverride All'; \
-        echo '        Require all granted'; \
-        echo '        Options FollowSymLinks'; \
-        echo '    </Directory>'; \
-        echo '    ErrorLog ${APACHE_LOG_DIR}/error.log'; \
-        echo '    CustomLog ${APACHE_LOG_DIR}/access.log combined'; \
-        echo '</VirtualHost>'; \
-    } > /etc/apache2/sites-available/000-default.conf \
+        echo 'server {'; \
+        echo '    listen 80;'; \
+        echo '    server_name _;'; \
+        echo '    root /var/www/html/public;'; \
+        echo '    index index.php index.html;'; \
+        echo '    location / {'; \
+        echo '        try_files $uri $uri/ /index.php?s=$query_string;'; \
+        echo '    }'; \
+        echo '    location ~ \\.php$ {'; \
+        echo '        include fastcgi_params;'; \
+        echo '        fastcgi_pass 127.0.0.1:9000;'; \
+        echo '        fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;'; \
+        echo '        fastcgi_index index.php;'; \
+        echo '    }'; \
+        echo '    location ~* \\.(jpg|jpeg|gif|png|css|js|ico|xml)$ {'; \
+        echo '        expires 7d;'; \
+        echo '    }'; \
+        echo '    location ~ /\\.ht {'; \
+        echo '        deny all;'; \
+        echo '    }'; \
+        echo '}'; \
+    } > /etc/nginx/conf.d/default.conf \
+    && rm -f /etc/nginx/sites-enabled/default \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -57,3 +68,6 @@ RUN test -f /var/www/html/thinkphp/start.php \
     && chown -R www-data:www-data /var/www/html/runtime
 
 EXPOSE 80
+
+CMD ["sh", "-c", "php-fpm -D && nginx -g 'daemon off;'"]
+
