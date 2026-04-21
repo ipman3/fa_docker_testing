@@ -3,11 +3,8 @@ FROM php:8.2-apache
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         git \
-        libcurl4-openssl-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
-        libicu-dev \
-        libonig-dev \
         libxml2-dev \
         libpng-dev \
         libzip-dev \
@@ -17,8 +14,6 @@ RUN apt-get update \
     && pecl install igbinary redis \
     && docker-php-ext-install -j"$(nproc)" \
         bcmath \
-        curl \
-        fileinfo \
         gd \
         mbstring \
         mysqli \
