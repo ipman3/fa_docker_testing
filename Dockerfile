@@ -38,7 +38,7 @@ WORKDIR /app
 
 COPY . /app
 
-RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+RUN composer install --no-dev --prefer-source --no-interaction --optimize-autoloader -vvv \
     && test -f /app/thinkphp/start.php
 
 ENV PORT=8080
