@@ -1,8 +1,7 @@
-FROM php:8.2-cli
+FROM php:8.2-fpm
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        libcurl4-openssl-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
         libpng-dev \
@@ -13,7 +12,6 @@ RUN apt-get update \
     && pecl install igbinary redis \
     && docker-php-ext-install -j"$(nproc)" \
         bcmath \
-        curl \
         fileinfo \
         gd \
         mysqli \
@@ -23,14 +21,6 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-WORKDIR /app
+WORKDIR /var/www/html
 
-COPY . /app
-
-ENV PORT=8080
-
-RUN mkdir -p /app/runtime/cache /app/runtime/log /app/runtime/temp
-
-EXPOSE 8080
-
-CMD ["sh", "-c", "php -d variables_order=EGPCS -S 0.0.0.0:${PORT:-8080} -t public public/router.php"]
+COPY . /var/www/html

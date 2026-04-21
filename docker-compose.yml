@@ -1,0 +1,33 @@
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: docker/nginx/Dockerfile
+    # For Apple Silicon or ARM Ubuntu, uncomment the next line.
+    platform: linux/amd64
+    container_name: fa_nginx
+    depends_on:
+      php:
+        condition: service_started
+    ports:
+      - "80:80"
+    volumes:
+      - .:/var/www/html
+    networks:
+      - fastadmin
+
+  php:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: fa_php
+    command: [ "php", "-S", "0.0.0.0:9000", "-t", "public", "public/router.php" ]
+    volumes:
+      - .:/var/www/html
+    working_dir: /var/www/html
+    networks:
+      - fastadmin
+
+networks:
+  fastadmin:
+    driver: bridge
