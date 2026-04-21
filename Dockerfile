@@ -6,6 +6,9 @@ RUN apt-get update \
         libcurl4-openssl-dev \
         libfreetype6-dev \
         libjpeg62-turbo-dev \
+        libicu-dev \
+        libonig-dev \
+        libxml2-dev \
         libpng-dev \
         libzip-dev \
         unzip \
@@ -17,8 +20,13 @@ RUN apt-get update \
         curl \
         fileinfo \
         gd \
+        mbstring \
         mysqli \
         pdo_mysql \
+        simplexml \
+        xml \
+        xmlreader \
+        xmlwriter \
         zip \
     && docker-php-ext-enable igbinary redis \
     && apt-get clean \

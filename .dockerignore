@@ -3,3 +3,5 @@
 .DS_Store
 runtime
 node_modules
+thinkphp
+vendor
